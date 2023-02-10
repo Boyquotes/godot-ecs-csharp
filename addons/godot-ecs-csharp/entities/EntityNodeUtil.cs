@@ -28,12 +28,24 @@ namespace GdEcs
             entity.Disconnect("tree_exited", this, nameof(DisconnectFromReady));
         }
 
+        public void AddComponent(Node entity, IEntityComponent component)
+        {
+            Debug.Assert(entity is IEntity);
+            entity.AddChild((Node)component);
+        }
+
+        public void RemoveComponent(Node entity, IEntityComponent component)
+        {
+            Debug.Assert(entity is IEntity);
+            entity.RemoveChild((Node)component);
+        }
+
         private void OnChildEnteredTree(Node child, Node entity)
         {
             Debug.Assert(entity is IEntity);
             if (child is IEntityComponent && NodeUtil.GetClosestParentOfType<IEntity>(child) == entity)
             {
-                ((IEntity)entity).ComponentStore.AddComponent((IEntityComponent)child);
+                ((IEntity)entity).ComponentStore.AddComponentToStore((IEntityComponent)child);
             }
         }
 
@@ -42,7 +54,7 @@ namespace GdEcs
             Debug.Assert(entity is IEntity);
             if (child is IEntityComponent && NodeUtil.GetClosestParentOfType<IEntity>(child) == entity)
             {
-                ((IEntity)entity).ComponentStore.RemoveComponent((IEntityComponent)child);
+                ((IEntity)entity).ComponentStore.RemoveComponentFromStore((IEntityComponent)child);
             }
         }
 

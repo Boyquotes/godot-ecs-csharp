@@ -14,6 +14,9 @@ namespace GdEcs
         ulong EntityId { get; set; }
 
         EntityComponentStore ComponentStore { get; }
+
+        void AddComponent(IEntityComponent component);
+        void RemoveComponent(IEntityComponent component);
     }
 
     public interface IEntitySystem

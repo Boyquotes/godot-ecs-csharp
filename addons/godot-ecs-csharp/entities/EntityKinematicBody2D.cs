@@ -22,6 +22,16 @@ namespace GdEcs
             EntityNodeUtil.I.Ready(this);
         }
 
+        public void AddComponent(IEntityComponent component)
+        {
+            EntityNodeUtil.I.AddComponent(this, component);
+        }
+
+        public void RemoveComponent(IEntityComponent component)
+        {
+            EntityNodeUtil.I.RemoveComponent(this, component);
+        }
+
     }
 
 }

@@ -40,6 +40,7 @@ EntitySystemPriority = 10
 [node name="Entities" type="Node" parent="EntitySystemManagerNode"]
 
 [node name="PlayerEntity" type="KinematicBody2D" parent="EntitySystemManagerNode/Entities"]
+unique_name_in_owner = true
 position = Vector2( 492, 286 )
 script = ExtResource( 6 )
 
@@ -64,6 +65,7 @@ shape = SubResource( 1 )
 script = ExtResource( 13 )
 
 [node name="DudeEntity" type="KinematicBody2D" parent="EntitySystemManagerNode/Entities"]
+unique_name_in_owner = true
 position = Vector2( 685, 358 )
 script = ExtResource( 6 )
 

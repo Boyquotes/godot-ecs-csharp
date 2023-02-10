@@ -51,7 +51,7 @@ namespace GdEcs
             return ret;
         }
 
-        public void AddComponent(IEntityComponent component)
+        public void AddComponentToStore(IEntityComponent component)
         {
             var type = component.GetType();
             if (!componentTypeMap.ContainsKey(type))
@@ -63,7 +63,7 @@ namespace GdEcs
             ComponentsChanged(Entity);
         }
 
-        public void RemoveComponent(IEntityComponent component)
+        public void RemoveComponentFromStore(IEntityComponent component)
         {
             var type = component.GetType();
             if (!componentTypeMap.ContainsKey(type))
@@ -71,15 +71,6 @@ namespace GdEcs
             componentTypeMap[type].Remove(component);
             if (componentTypeMap[type].Count <= 0)
                 componentTypeMap.Remove(type);
-            ComponentsChanged(Entity);
-        }
-
-        public void RemoveComponentsOfType<T>() where T : IEntityComponent
-        {
-            var type = typeof(T);
-            if (!componentTypeMap.ContainsKey(type))
-                return;
-            componentTypeMap.Remove(type);
             ComponentsChanged(Entity);
         }
 
