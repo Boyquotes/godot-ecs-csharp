@@ -15,6 +15,7 @@ namespace GdEcs
 
         public void Ready(Node entity)
         {
+            Debug.Assert(entity is IEntity);
             entity.Connect("child_entered_tree", this, nameof(OnChildEnteredTree), new Godot.Collections.Array { entity });
             entity.Connect("child_exiting_tree", this, nameof(OnChildExitedTree), new Godot.Collections.Array { entity });
             entity.Connect("tree_exited", this, nameof(DisconnectFromReady), new Godot.Collections.Array { entity });
@@ -23,6 +24,7 @@ namespace GdEcs
 
         public void DisconnectFromReady(Node entity)
         {
+            Debug.Assert(entity is IEntity);
             entity.Disconnect("child_entered_tree", this, nameof(OnChildEnteredTree));
             entity.Disconnect("child_exiting_tree", this, nameof(OnChildExitedTree));
             entity.Disconnect("tree_exited", this, nameof(DisconnectFromReady));
