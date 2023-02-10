@@ -7,6 +7,15 @@ namespace GdEcs
     public class SimpleKinematicBody2DMovementSystem : EntitySystemNode
     {
 
+        [Export]
+        public override int EntitySystemPriority { get; set; } = 0;
+
+        [Export]
+        public Vector2 UpDirection { get; set; } = Vector2.Zero;
+
+        [Export]
+        public bool StopOnSlope { get; set; } = false;
+
         protected override void PhysicsProcessEntity(IEntity entity, float delta)
         {
             base.PhysicsProcessEntity(entity, delta);
@@ -14,7 +23,7 @@ namespace GdEcs
             var entityT = (KinematicBody2D)entity;
             var velComp = entity.ComponentStore.GetFirstComponentOfType<Velocity2DComponent>()!;
 
-            entityT.MoveAndSlide(velComp.Velocity);
+            entityT.MoveAndSlide(velComp.Velocity, UpDirection, StopOnSlope);
         }
 
         protected override bool ShouldProcessEntity(IEntity entity)

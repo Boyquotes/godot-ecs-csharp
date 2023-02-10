@@ -7,6 +7,9 @@ namespace GdEcs
     public class Directional2DToVelocity2DSystem : EntitySystemNode
     {
 
+        [Export]
+        public override int EntitySystemPriority { get; set; } = 0;
+
         protected override void PhysicsProcessEntity(IEntity entity, float delta)
         {
             base.PhysicsProcessEntity(entity, delta);

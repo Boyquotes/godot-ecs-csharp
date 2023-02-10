@@ -18,6 +18,8 @@ namespace GdEcs
 
     public interface IEntitySystem
     {
+        int EntitySystemPriority { get; }
+
         void RefreshProcessesEntity(IEntity entity);
 
         void DoProcess(float delta);

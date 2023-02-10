@@ -47,7 +47,10 @@ namespace GdEcs
         public event EntitySystemDelegate EntitySystemRemoved = delegate { };
 
         private Dictionary<ulong, IEntity> entities = new Dictionary<ulong, IEntity>();
-        private List<IEntitySystem> systems = new List<IEntitySystem>();
+        private PriorityList<IEntitySystem> systems = new PriorityList<IEntitySystem>(
+            (a, b) => a.EntitySystemPriority > b.EntitySystemPriority
+                ? -1
+                : (a.EntitySystemPriority < b.EntitySystemPriority ? 1 : 0));
 
         private List<SystemUpdateEntry> systemUpdateEntries = new List<SystemUpdateEntry>();
         private List<EntityUpdateEntry> entityUpdateEntries = new List<EntityUpdateEntry>();
@@ -142,7 +145,7 @@ namespace GdEcs
                 else
                 {
                     Debug.Assert(!systems.Contains(entry.System));
-                    systems.Add(entry.System);
+                    systems.AddPrioritized(entry.System);
                     EntitySystemAdded(entry.System);
                     foreach (var ent in entities.Values)
                         entry.System.RefreshProcessesEntity(ent);
@@ -151,7 +154,9 @@ namespace GdEcs
             systemUpdateEntries.Clear();
 
             foreach (var system in systems)
+            {
                 system.DoProcess(delta);
+            }
         }
 
         public override void _PhysicsProcess(float delta)

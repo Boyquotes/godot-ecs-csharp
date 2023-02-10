@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://example/Example1.cs" type="Script" id=1]
 [ext_resource path="res://addons/godot-ecs-csharp/core/EntitySystemManagerNode.cs" type="Script" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://addons/godot-ecs-csharp/components/FourDirectionalUserInputComponent.cs" type="Script" id=10]
 [ext_resource path="res://addons/godot-ecs-csharp/components/Velocity2DComponent.cs" type="Script" id=11]
 [ext_resource path="res://addons/godot-ecs-csharp/components/SpeedComponent.cs" type="Script" id=12]
+[ext_resource path="res://addons/godot-ecs-csharp/components/CollisionShape2DComponent.cs" type="Script" id=13]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 31, 31 )
@@ -26,12 +27,15 @@ script = ExtResource( 2 )
 
 [node name="FourDirectionalUserInputSystem" type="Node" parent="EntitySystemManagerNode/Systems"]
 script = ExtResource( 3 )
+EntitySystemPriority = 100
 
 [node name="Directional2DToVelocity2DSystem" type="Node" parent="EntitySystemManagerNode/Systems"]
 script = ExtResource( 4 )
+EntitySystemPriority = 50
 
 [node name="SimpleKinematicBody2DMovementSystem" type="Node" parent="EntitySystemManagerNode/Systems"]
 script = ExtResource( 5 )
+EntitySystemPriority = 10
 
 [node name="Entities" type="Node" parent="EntitySystemManagerNode"]
 
@@ -42,9 +46,6 @@ script = ExtResource( 6 )
 [node name="SpriteComponent" type="Sprite" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 texture = ExtResource( 8 )
 script = ExtResource( 7 )
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
-shape = SubResource( 1 )
 
 [node name="Directional2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 script = ExtResource( 9 )
@@ -57,3 +58,28 @@ script = ExtResource( 12 )
 
 [node name="Velocity2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 script = ExtResource( 11 )
+
+[node name="CollisionShape2DComponent" type="CollisionShape2D" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
+shape = SubResource( 1 )
+script = ExtResource( 13 )
+
+[node name="DudeEntity" type="KinematicBody2D" parent="EntitySystemManagerNode/Entities"]
+position = Vector2( 685, 358 )
+script = ExtResource( 6 )
+
+[node name="SpriteComponent" type="Sprite" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+texture = ExtResource( 8 )
+script = ExtResource( 7 )
+
+[node name="Directional2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+script = ExtResource( 9 )
+
+[node name="SpeedComponent" type="Node" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+script = ExtResource( 12 )
+
+[node name="Velocity2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+script = ExtResource( 11 )
+
+[node name="CollisionShape2DComponent" type="CollisionShape2D" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+shape = SubResource( 1 )
+script = ExtResource( 13 )

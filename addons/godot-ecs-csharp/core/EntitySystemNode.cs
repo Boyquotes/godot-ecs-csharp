@@ -11,6 +11,8 @@ namespace GdEcs
         public event EntityDelegate EntityAddedToSystem = delegate { };
         public event EntityDelegate EntityRemovedFromSystem = delegate { };
 
+        public abstract int EntitySystemPriority { get; set; }
+
         [Export]
         public bool SystemEnabled { get; set; } = true;
 

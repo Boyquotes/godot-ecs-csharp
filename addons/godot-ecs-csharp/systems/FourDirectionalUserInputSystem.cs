@@ -7,6 +7,9 @@ namespace GdEcs
     public class FourDirectionalUserInputSystem : EntitySystemNode
     {
 
+        [Export]
+        public override int EntitySystemPriority { get; set; } = 0;
+
         protected override void ProcessEntity(IEntity entity, float delta)
         {
             base.ProcessEntity(entity, delta);
