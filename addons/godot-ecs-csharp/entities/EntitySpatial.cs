@@ -3,7 +3,7 @@ using Godot;
 namespace GdEcs
 {
 
-    [ExportCustomNode]
+    [ExportCustomNode("entity")]
     public class EntitySpatial : Spatial, IEntity
     {
 

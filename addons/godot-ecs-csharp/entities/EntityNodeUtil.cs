@@ -31,7 +31,7 @@ namespace GdEcs
         private void OnChildEnteredTree(Node child, Node entity)
         {
             Debug.Assert(entity is IEntity);
-            if (child is IEntityComponent)
+            if (child is IEntityComponent && NodeUtil.GetClosestParentOfType<IEntity>(child) == entity)
             {
                 ((IEntity)entity).ComponentStore.AddComponent((IEntityComponent)child);
             }
@@ -40,7 +40,7 @@ namespace GdEcs
         private void OnChildExitedTree(Node child, Node entity)
         {
             Debug.Assert(entity is IEntity);
-            if (child is IEntityComponent)
+            if (child is IEntityComponent && NodeUtil.GetClosestParentOfType<IEntity>(child) == entity)
             {
                 ((IEntity)entity).ComponentStore.RemoveComponent((IEntityComponent)child);
             }

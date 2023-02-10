@@ -4,6 +4,7 @@ namespace GdEcs
 {
 
     public delegate void EntityDelegate(IEntity entity);
+    public delegate void EntitySystemDelegate(IEntitySystem system);
     public delegate void NodeDelegate(Node node);
 
     public interface IEntityComponent { }

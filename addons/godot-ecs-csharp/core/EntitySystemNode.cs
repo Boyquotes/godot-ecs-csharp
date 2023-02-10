@@ -8,8 +8,8 @@ namespace GdEcs
     public abstract class EntitySystemNode : Node, IEntitySystem
     {
 
-        public event EntityDelegate EntityAdded = delegate { };
-        public event EntityDelegate EntityRemoved = delegate { };
+        public event EntityDelegate EntityAddedToSystem = delegate { };
+        public event EntityDelegate EntityRemovedFromSystem = delegate { };
 
         [Export]
         public bool SystemEnabled { get; set; } = true;
@@ -40,13 +40,13 @@ namespace GdEcs
         protected void AddEntity(IEntity entity)
         {
             entities.Add(entity);
-            EntityAdded(entity);
+            EntityAddedToSystem(entity);
         }
 
         protected void RemoveEntity(IEntity entity)
         {
             entities.Remove(entity);
-            EntityRemoved(entity);
+            EntityRemovedFromSystem(entity);
         }
 
         public void DoProcess(float delta)

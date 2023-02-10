@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Godot;
 
 namespace GdEcs
@@ -23,6 +22,15 @@ namespace GdEcs
         public bool HasComponentsOfType<T>(uint atLeast = 1) where T : IEntityComponent
         {
             return componentTypeMap.ContainsKey(typeof(T)) && componentTypeMap[typeof(T)].Count >= atLeast;
+        }
+
+        public bool HasComponentsOfAllTypes(params Type[] types)
+        {
+            Debug.Assert(types.Length > 0);
+            foreach (var type in types)
+                if (!componentTypeMap.ContainsKey(type))
+                    return false;
+            return true;
         }
 
         public T? GetFirstComponentOfType<T>() where T : class, IEntityComponent

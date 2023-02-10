@@ -3,15 +3,15 @@ using Godot;
 namespace GdEcs
 {
 
-    [ExportCustomNode]
-    public class EntityNode2D : Node2D, IEntity
+    [ExportCustomNode("entity")]
+    public class EntityKinematicBody2D : KinematicBody2D, IEntity
     {
 
         public ulong EntityId { get; set; }
 
         public EntityComponentStore ComponentStore { get; }
 
-        public EntityNode2D()
+        public EntityKinematicBody2D()
         {
             ComponentStore = new EntityComponentStore(this);
         }

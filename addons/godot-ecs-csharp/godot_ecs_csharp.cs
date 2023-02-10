@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using GdEcs;
@@ -41,7 +40,25 @@ public class godot_ecs_csharp : EditorPlugin
 
             var script = GD.Load<Script>(exportCustomAttr.ScriptPath);
             // GD.Print($"Registering custom type {type.Name}, script: {script.ResourcePath}");
-            AddCustomType(type.Name, exportCustomAttr.BaseTypePath ?? type.BaseType.Name, script, null);
+            Texture? icon = null;
+            if (exportCustomAttr.IconName != null)
+            {
+                var iconName = exportCustomAttr.IconName;
+                switch (exportCustomAttr.IconName)
+                {
+                    case "component":
+                        iconName = "KeyBezier";
+                        break;
+                    case "system":
+                        iconName = "KeyAnimation";
+                        break;
+                    case "entity":
+                        iconName = "KeyAudio";
+                        break;
+                }
+                icon = GetEditorInterface().GetBaseControl().GetIcon(iconName, "EditorIcons");
+            }
+            AddCustomType(type.Name, exportCustomAttr.BaseTypePath ?? type.BaseType.Name, script, icon);
             registeredTypes.Add(type.Name);
         }
     }

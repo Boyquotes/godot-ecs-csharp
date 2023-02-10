@@ -35,11 +35,16 @@ namespace GdEcs
         }
     }
 
-    [ExportCustomNode]
+    [ExportCustomNode("KeyBezierHandle")]
     public class EntitySystemManagerNode : Node
     {
 
         public const ulong INVALID_ENTITY_ID = 0;
+
+        public event EntityDelegate EntityAdded = delegate { };
+        public event EntityDelegate EntityRemoved = delegate { };
+        public event EntitySystemDelegate EntitySystemAdded = delegate { };
+        public event EntitySystemDelegate EntitySystemRemoved = delegate { };
 
         private Dictionary<ulong, IEntity> entities = new Dictionary<ulong, IEntity>();
         private List<IEntitySystem> systems = new List<IEntitySystem>();
@@ -52,6 +57,8 @@ namespace GdEcs
         public override void _Ready()
         {
             base._Ready();
+
+            OnEnteredTree();
 
             Connect("child_entered_tree", this, nameof(OnChildEnteredTree));
             Connect("child_exiting_tree", this, nameof(OnChildExitingTree));
@@ -109,11 +116,13 @@ namespace GdEcs
                         entry.Entity.EntityId = NextEntityId();
                         entities.Add(entry.Entity.EntityId, entry.Entity);
                         entry.Entity.ComponentStore.ComponentsChanged += OnEntityComponentsChanged;
+                        EntityAdded(entry.Entity);
                         break;
                     case EntityUpdateType.Remove:
                         Debug.Assert(entities.Values.Contains(entry.Entity));
                         entry.Entity.ComponentStore.ComponentsChanged -= OnEntityComponentsChanged;
                         entities.Remove(entry.Entity.EntityId);
+                        EntityRemoved(entry.Entity);
                         entry.Entity.EntityId = 0;
                         break;
                 }
@@ -128,11 +137,13 @@ namespace GdEcs
                 {
                     Debug.Assert(systems.Contains(entry.System));
                     systems.Remove(entry.System);
+                    EntitySystemRemoved(entry.System);
                 }
                 else
                 {
                     Debug.Assert(!systems.Contains(entry.System));
                     systems.Add(entry.System);
+                    EntitySystemAdded(entry.System);
                     foreach (var ent in entities.Values)
                         entry.System.RefreshProcessesEntity(ent);
                 }
@@ -183,6 +194,12 @@ namespace GdEcs
                 var sys = (IEntitySystem)node;
                 RemoveSystem(sys);
             }
+        }
+
+        private void OnEnteredTree()
+        {
+            Debug.Assert(NodeUtil.GetClosestParentOfType<EntitySystemManagerNode>(this) == null,
+                "EntitySystemManagerNode cannot be in the subtree of another EntitySystemManagerNode");
         }
 
         private void OnExitedTree()
