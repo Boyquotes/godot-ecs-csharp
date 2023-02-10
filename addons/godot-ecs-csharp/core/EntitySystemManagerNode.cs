@@ -43,13 +43,13 @@ namespace GdEcs
             foreach (var entity in entities.ToList())
                 RemoveEntity(entity);
             // Reconcile
-            NodeUtil.TraverseChildren(this, true, (child) =>
+            this.TraverseChildren(true, (child) =>
             {
-                if (child.IsEntitySystem() && NodeUtil.GetClosestParentOfType<IEntitySystemManager>(child) == this)
+                if (child.IsEntitySystem() && child.GetClosestParentOfType<IEntitySystemManager>() == this)
                 {
                     AddSystem((IEntitySystem)child);
                 }
-                else if (child.IsEntity() && NodeUtil.GetClosestParentOfType<IEntitySystemManager>(child) == this)
+                else if (child.IsEntity() && child.GetClosestParentOfType<IEntitySystemManager>() == this)
                 {
                     AddEntity((IEntity)child);
                 }

@@ -34,7 +34,7 @@ namespace GdEcs
             tree.Connect("node_added", this, nameof(OnNodeAdded));
             tree.Connect("node_removed", this, nameof(OnNodeRemoved));
 
-            NodeUtil.TraverseChildren(tree.Root, true, OnNodeAdded);
+            tree.Root.TraverseChildren(true, OnNodeAdded);
         }
 
         private void OnNodeAdded(Node node)
@@ -46,14 +46,14 @@ namespace GdEcs
                     $"Cannot add duplicate entity node {node} ({node.GetPath()})");
                 entityToEntityIdMap.Add((IEntity)node, RequestNextEntityId());
 
-                var sysMgr = NodeUtil.GetClosestParentOfType<IEntitySystemManager>(node);
+                var sysMgr = node.GetClosestParentOfType<IEntitySystemManager>();
                 Debug.Assert(sysMgr != null, $"Entity {node} ({node.GetPath()}) is not in a subtree of an IEntitySystemManager");
                 sysMgr.AddEntity((IEntity)node);
             }
             else if (node.IsEntityComponent())
             {
                 Log.Debug($"ECS IEntityComponent added: {node.Name}");
-                var entity = NodeUtil.GetClosestParentOfType<IEntity>(node);
+                var entity = node.GetClosestParentOfType<IEntity>();
                 if (entity == null)
                 {
                     Log.Warn($"Entity component {node} ({node.GetPath()}) added to tree, but no parent IEntity found.");
@@ -64,7 +64,7 @@ namespace GdEcs
             else if (node.IsEntitySystem())
             {
                 Log.Debug($"ECS IEntitySystem added: {node.Name}");
-                var sysMgr = NodeUtil.GetClosestParentOfType<IEntitySystemManager>(node);
+                var sysMgr = node.GetClosestParentOfType<IEntitySystemManager>();
                 Debug.Assert(sysMgr != null, $"IEntitySystem {node} ({node.GetPath()}) is not in a subtree of an IEntitySystemManager");
                 sysMgr.AddSystem((IEntitySystem)node);
             }
@@ -80,14 +80,14 @@ namespace GdEcs
                 entityToEntityIdMap.Remove((IEntity)node);
                 entityToComponentStoreMap.Remove((IEntity)node);
 
-                var sysMgr = NodeUtil.GetClosestParentOfType<IEntitySystemManager>(node);
+                var sysMgr = node.GetClosestParentOfType<IEntitySystemManager>();
                 Debug.Assert(sysMgr != null, $"Entity {node} ({node.GetPath()}) is not in a subtree of an IEntitySystemManager");
                 sysMgr.RemoveEntity((IEntity)node);
             }
             else if (node.IsEntityComponent())
             {
                 Log.Debug($"ECS IEntityComponent removed: {node.Name}");
-                var entity = NodeUtil.GetClosestParentOfType<IEntity>(node);
+                var entity = node.GetClosestParentOfType<IEntity>();
                 if (entity == null)
                 {
                     Log.Warn($"Entity component {node} ({node.GetPath()}) removed from tree, but no parent IEntity found.");
@@ -98,7 +98,7 @@ namespace GdEcs
             else if (node.IsEntitySystem())
             {
                 Log.Debug($"ECS IEntitySystem removed: {node.Name}");
-                var sysMgr = NodeUtil.GetClosestParentOfType<IEntitySystemManager>(node);
+                var sysMgr = node.GetClosestParentOfType<IEntitySystemManager>();
                 Debug.Assert(sysMgr != null, $"IEntitySystem {node} ({node.GetPath()}) is not in a subtree of an IEntitySystemManager");
                 sysMgr.RemoveSystem((IEntitySystem)node);
             }
