@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Godot;
 
 namespace GdEcs
@@ -38,11 +39,15 @@ namespace GdEcs
     public class EntitySystemManagerNode : Node
     {
 
-        private List<IEntity> entities = new List<IEntity>();
+        public const ulong INVALID_ENTITY_ID = 0;
+
+        private Dictionary<ulong, IEntity> entities = new Dictionary<ulong, IEntity>();
         private List<IEntitySystem> systems = new List<IEntitySystem>();
 
         private List<SystemUpdateEntry> systemUpdateEntries = new List<SystemUpdateEntry>();
         private List<EntityUpdateEntry> entityUpdateEntries = new List<EntityUpdateEntry>();
+
+        private ulong nextEntityId = 1;
 
         public override void _Ready()
         {
@@ -54,6 +59,43 @@ namespace GdEcs
             NodeUtil.TraverseChildren(this, true, OnChildEnteredTree);
         }
 
+        public T? GetEntity<T>(ulong entityId) where T : class, IEntity
+        {
+            if (entities.ContainsKey(entityId))
+                return (T)entities[entityId];
+            return null;
+        }
+
+        public IEnumerable<IEntity> GetEntities()
+        {
+            return entities.Values.AsEnumerable();
+        }
+
+        public bool HasEntity(ulong entityId)
+        {
+            return GetEntity<IEntity>(entityId) != null;
+        }
+
+        public void AddEntity(IEntity entity)
+        {
+            entityUpdateEntries.Add(new EntityUpdateEntry(entity, EntityUpdateType.Add));
+        }
+
+        public void RemoveEntity(ulong entityId)
+        {
+            entityUpdateEntries.Add(new EntityUpdateEntry(entities[entityId], EntityUpdateType.Remove));
+        }
+
+        public void AddSystem(IEntitySystem system)
+        {
+            systemUpdateEntries.Add(new SystemUpdateEntry(system, false));
+        }
+
+        public void RemoveSystem(IEntitySystem system)
+        {
+            systemUpdateEntries.Add(new SystemUpdateEntry(system, true));
+        }
+
         public override void _Process(float delta)
         {
             base._Process(delta);
@@ -63,14 +105,16 @@ namespace GdEcs
                 switch (entry.EntityUpdateType)
                 {
                     case EntityUpdateType.Add:
-                        Debug.Assert(!entities.Contains(entry.Entity));
-                        entities.Add(entry.Entity);
+                        Debug.Assert(!entities.Values.Contains(entry.Entity));
+                        entry.Entity.EntityId = NextEntityId();
+                        entities.Add(entry.Entity.EntityId, entry.Entity);
                         entry.Entity.ComponentStore.ComponentsChanged += OnEntityComponentsChanged;
                         break;
                     case EntityUpdateType.Remove:
-                        Debug.Assert(entities.Contains(entry.Entity));
+                        Debug.Assert(entities.Values.Contains(entry.Entity));
                         entry.Entity.ComponentStore.ComponentsChanged -= OnEntityComponentsChanged;
-                        entities.Remove(entry.Entity);
+                        entities.Remove(entry.Entity.EntityId);
+                        entry.Entity.EntityId = 0;
                         break;
                 }
                 foreach (var system in systems)
@@ -89,7 +133,7 @@ namespace GdEcs
                 {
                     Debug.Assert(!systems.Contains(entry.System));
                     systems.Add(entry.System);
-                    foreach (var ent in entities)
+                    foreach (var ent in entities.Values)
                         entry.System.RefreshProcessesEntity(ent);
                 }
             }
@@ -118,12 +162,12 @@ namespace GdEcs
             if (node is IEntity)
             {
                 var ent = (IEntity)node;
-                entityUpdateEntries.Add(new EntityUpdateEntry(ent, EntityUpdateType.Add));
+                AddEntity(ent);
             }
             else if (node is IEntitySystem)
             {
                 var sys = (IEntitySystem)node;
-                systemUpdateEntries.Add(new SystemUpdateEntry(sys, false));
+                AddSystem(sys);
             }
         }
 
@@ -132,12 +176,12 @@ namespace GdEcs
             if (node is IEntity)
             {
                 var ent = (IEntity)node;
-                entityUpdateEntries.Add(new EntityUpdateEntry(ent, EntityUpdateType.Remove));
+                RemoveEntity(ent.EntityId);
             }
             else if (node is IEntitySystem)
             {
                 var sys = (IEntitySystem)node;
-                systemUpdateEntries.Add(new SystemUpdateEntry(sys, true));
+                RemoveSystem(sys);
             }
         }
 
@@ -146,6 +190,11 @@ namespace GdEcs
             Disconnect("child_entered_tree", this, nameof(OnChildEnteredTree));
             Disconnect("child_exiting_tree", this, nameof(OnChildExitingTree));
             Disconnect("tree_exited", this, nameof(OnExitedTree));
+        }
+
+        private ulong NextEntityId()
+        {
+            return nextEntityId++;
         }
 
     }

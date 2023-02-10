@@ -7,6 +7,8 @@ namespace GdEcs
     public class EntityNode : Node, IEntity
     {
 
+        public ulong EntityId { get; set; }
+
         public EntityComponentStore ComponentStore { get; }
 
         public EntityNode()

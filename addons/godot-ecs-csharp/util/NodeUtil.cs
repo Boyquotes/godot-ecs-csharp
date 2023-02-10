@@ -3,8 +3,6 @@ using Godot;
 namespace GdEcs
 {
 
-    public delegate void NodeDelegate(Node node);
-
     public sealed class NodeUtil
     {
 

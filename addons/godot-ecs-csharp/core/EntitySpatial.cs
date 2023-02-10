@@ -7,6 +7,8 @@ namespace GdEcs
     public class EntitySpatial : Spatial, IEntity
     {
 
+        public ulong EntityId { get; set; }
+
         public EntityComponentStore ComponentStore { get; }
 
         public EntitySpatial()

@@ -20,6 +20,7 @@ script = ExtResource( 2 )
 script = ExtResource( 7 )
 
 [node name="EntityNode2D" type="Node2D" parent="EntitySystemManagerNode"]
+position = Vector2( 76, 60 )
 script = ExtResource( 3 )
 
 [node name="SpriteNodeComponent" type="Sprite" parent="EntitySystemManagerNode/EntityNode2D"]
@@ -32,6 +33,7 @@ script = ExtResource( 6 )
 Velocity = Vector2( 10, 10 )
 
 [node name="EntityNode2D2" type="Node2D" parent="EntitySystemManagerNode"]
+position = Vector2( 159, 121 )
 script = ExtResource( 3 )
 
 [node name="SpriteNodeComponent" type="Sprite" parent="EntitySystemManagerNode/EntityNode2D2"]
