@@ -40,26 +40,49 @@ EntitySystemPriority = 10
 [node name="Entities" type="Node" parent="EntitySystemManagerNode"]
 unique_name_in_owner = true
 
-[node name="EntityKinematicBody2D" type="KinematicBody2D" parent="EntitySystemManagerNode/Entities"]
+[node name="PlayerEntity" type="KinematicBody2D" parent="EntitySystemManagerNode/Entities"]
+unique_name_in_owner = true
 position = Vector2( 484, 265 )
 script = ExtResource( 3 )
 
-[node name="SpriteComponent" type="Sprite" parent="EntitySystemManagerNode/Entities/EntityKinematicBody2D"]
+[node name="SpriteComponent" type="Sprite" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 texture = ExtResource( 8 )
 script = ExtResource( 7 )
 
-[node name="CollisionShape2DComponent" type="CollisionShape2D" parent="EntitySystemManagerNode/Entities/EntityKinematicBody2D"]
+[node name="CollisionShape2DComponent" type="CollisionShape2D" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 shape = SubResource( 1 )
 script = ExtResource( 13 )
 
-[node name="FourDirectionalUserInputComponent" type="Node" parent="EntitySystemManagerNode/Entities/EntityKinematicBody2D"]
+[node name="FourDirectionalUserInputComponent" type="Node" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 script = ExtResource( 4 )
 
-[node name="Velocity2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/EntityKinematicBody2D"]
+[node name="Velocity2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 script = ExtResource( 5 )
 
-[node name="SpeedComponent" type="Node" parent="EntitySystemManagerNode/Entities/EntityKinematicBody2D"]
+[node name="SpeedComponent" type="Node" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
 script = ExtResource( 6 )
 
-[node name="Directional2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/EntityKinematicBody2D"]
+[node name="Directional2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/PlayerEntity"]
+script = ExtResource( 12 )
+
+[node name="DudeEntity" type="KinematicBody2D" parent="EntitySystemManagerNode/Entities"]
+unique_name_in_owner = true
+position = Vector2( 597, 325 )
+script = ExtResource( 3 )
+
+[node name="SpriteComponent" type="Sprite" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+texture = ExtResource( 8 )
+script = ExtResource( 7 )
+
+[node name="CollisionShape2DComponent" type="CollisionShape2D" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+shape = SubResource( 1 )
+script = ExtResource( 13 )
+
+[node name="Velocity2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+script = ExtResource( 5 )
+
+[node name="SpeedComponent" type="Node" parent="EntitySystemManagerNode/Entities/DudeEntity"]
+script = ExtResource( 6 )
+
+[node name="Directional2DComponent" type="Node" parent="EntitySystemManagerNode/Entities/DudeEntity"]
 script = ExtResource( 12 )

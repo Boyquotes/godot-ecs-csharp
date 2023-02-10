@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Xml;
 using Godot;
@@ -47,8 +48,17 @@ namespace GdEcs
             Debug.Assert(node.IsEntity());
             Debug.Assert(component is Node);
             var compNode = (Node)component;
-            if (compNode.GetParent() != null)
-                compNode.GetParent().RemoveChild(compNode);
+            compNode.QueueFree();
+        }
+
+        public static void RemoveEntityComponentsOfType<T>(this Node node)
+        {
+            Debug.Assert(node.IsEntity());
+            node.TraverseChildren(true, (child) =>
+            {
+                if (child is T && child.GetClosestParentOfType<IEntity>() == node)
+                    child.QueueFree();
+            });
         }
 
         public static void TraverseChildren(this Node root, bool recursive, NodeDelegate childCallback)
