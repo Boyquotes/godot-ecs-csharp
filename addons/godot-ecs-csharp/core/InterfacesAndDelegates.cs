@@ -3,17 +3,21 @@ using Godot;
 namespace GdEcs
 {
 
+    public delegate void EmptyDelegate();
     public delegate void EntityDelegate(IEntity entity);
     public delegate void EntitySystemDelegate(IEntitySystem system);
     public delegate void NodeDelegate(Node node);
 
     public interface IEntityComponent { }
 
-    public interface IEntity
-    {
-        ulong EntityId { get; set; }
+    public interface IEntity { }
 
-        EntityComponentStore ComponentStore { get; }
+    public interface IEntitySystemManager
+    {
+        void AddSystem(IEntitySystem system);
+        void RemoveSystem(IEntitySystem system);
+        void AddEntity(IEntity entity);
+        void RemoveEntity(IEntity entity);
     }
 
     public interface IEntitySystem

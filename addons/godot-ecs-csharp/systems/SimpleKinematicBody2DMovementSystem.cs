@@ -21,7 +21,8 @@ namespace GdEcs
             base.PhysicsProcessEntity(entity, delta);
 
             var entityT = (KinematicBody2D)entity;
-            var velComp = entity.ComponentStore.GetFirstComponentOfType<Velocity2DComponent>()!;
+            var compStore = entity.GetEntityComponentStore();
+            var velComp = compStore.GetFirstComponentOfType<Velocity2DComponent>()!;
 
             entityT.MoveAndSlide(velComp.Velocity, UpDirection, StopOnSlope);
         }
@@ -29,7 +30,7 @@ namespace GdEcs
         protected override bool ShouldProcessEntity(IEntity entity)
         {
             return entity is KinematicBody2D
-                && entity.ComponentStore.HasComponentsOfType<Velocity2DComponent>();
+                && entity.GetEntityComponentStore().HasComponentsOfType<Velocity2DComponent>();
         }
 
     }

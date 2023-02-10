@@ -14,16 +14,17 @@ namespace GdEcs
         {
             base.PhysicsProcessEntity(entity, delta);
 
-            var dirComp = entity.ComponentStore.GetFirstComponentOfType<Directional2DComponent>()!;
-            var speedComp = entity.ComponentStore.GetFirstComponentOfType<SpeedComponent>()!;
-            var velComp = entity.ComponentStore.GetFirstComponentOfType<Velocity2DComponent>()!;
+            var compStore = entity.GetEntityComponentStore();
+            var dirComp = compStore.GetFirstComponentOfType<Directional2DComponent>()!;
+            var speedComp = compStore.GetFirstComponentOfType<SpeedComponent>()!;
+            var velComp = compStore.GetFirstComponentOfType<Velocity2DComponent>()!;
 
             velComp.Velocity = dirComp.DirVecNormalized * speedComp.Speed * delta;
         }
 
         protected override bool ShouldProcessEntity(IEntity entity)
         {
-            return entity.ComponentStore.HasComponentsOfAllTypes(
+            return entity.GetEntityComponentStore().HasComponentsOfAllTypes(
                 typeof(Directional2DComponent),
                 typeof(SpeedComponent),
                 typeof(Velocity2DComponent)

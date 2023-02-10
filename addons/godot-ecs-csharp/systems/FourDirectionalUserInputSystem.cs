@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Godot;
 
 namespace GdEcs
@@ -14,15 +15,16 @@ namespace GdEcs
         {
             base.ProcessEntity(entity, delta);
 
-            var inputComp = entity.ComponentStore.GetFirstComponentOfType<FourDirectionalUserInputComponent>()!;
-            var dirComp = entity.ComponentStore.GetFirstComponentOfType<Directional2DComponent>()!;
+            var compStore = entity.GetEntityComponentStore();
+            var inputComp = compStore.GetFirstComponentOfType<FourDirectionalUserInputComponent>()!;
+            var dirComp = compStore.GetFirstComponentOfType<Directional2DComponent>()!;
 
             dirComp.RawDirVec = inputComp.RawDirVec;
         }
 
         protected override bool ShouldProcessEntity(IEntity entity)
         {
-            return entity.ComponentStore.HasComponentsOfAllTypes(
+            return entity.GetEntityComponentStore().HasComponentsOfAllTypes(
                 typeof(FourDirectionalUserInputComponent),
                 typeof(Directional2DComponent)
             );

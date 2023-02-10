@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Godot;
@@ -6,47 +7,16 @@ using Godot;
 namespace GdEcs
 {
 
-    public enum EntityUpdateType
-    {
-        Update, Add, Remove,
-    }
-
-    public struct EntityUpdateEntry
-    {
-        public readonly IEntity Entity;
-        public readonly EntityUpdateType EntityUpdateType;
-
-        public EntityUpdateEntry(IEntity entity, EntityUpdateType entityUpdateType)
-        {
-            this.Entity = entity;
-            this.EntityUpdateType = entityUpdateType;
-        }
-    }
-
-    public struct SystemUpdateEntry
-    {
-        public readonly IEntitySystem System;
-        public readonly bool Remove;
-
-        public SystemUpdateEntry(IEntitySystem system, bool remove)
-        {
-            this.System = system;
-            this.Remove = remove;
-        }
-    }
-
     [ExportCustomNode("KeyBezierHandle")]
-    public class EntitySystemManagerNode : Node
+    public class EntitySystemManagerNode : Node, IEntitySystemManager
     {
-
-        public const ulong INVALID_ENTITY_ID = 0;
 
         public event EntityDelegate EntityAdded = delegate { };
         public event EntityDelegate EntityRemoved = delegate { };
         public event EntitySystemDelegate EntitySystemAdded = delegate { };
         public event EntitySystemDelegate EntitySystemRemoved = delegate { };
 
-        private Dictionary<ulong, IEntity> entities = new Dictionary<ulong, IEntity>();
+        private List<IEntity> entities = new List<IEntity>();
         private PriorityList<IEntitySystem> systems = new PriorityList<IEntitySystem>(
             (a, b) => a.EntitySystemPriority > b.EntitySystemPriority
                 ? -1
@@ -54,55 +24,63 @@ namespace GdEcs
 
         private List<SystemUpdateEntry> systemUpdateEntries = new List<SystemUpdateEntry>();
         private List<EntityUpdateEntry> entityUpdateEntries = new List<EntityUpdateEntry>();
+        private Dictionary<IEntity, EmptyDelegate> entityComponentDelegates =
+            new Dictionary<IEntity, EmptyDelegate>();
 
-        private ulong nextEntityId = 1;
+        public ReadOnlyCollection<IEntity> Entities => entities.AsReadOnly();
 
         public override void _Ready()
         {
             base._Ready();
-
-            OnEnteredTree();
-
-            Connect("child_entered_tree", this, nameof(OnChildEnteredTree));
-            Connect("child_exiting_tree", this, nameof(OnChildExitingTree));
-            Connect("tree_exited", this, nameof(OnExitedTree));
-            NodeUtil.TraverseChildren(this, true, OnChildEnteredTree);
+            Connect("tree_entered", this, nameof(OnTreeEntered));
         }
 
-        public T? GetEntity<T>(ulong entityId) where T : class, IEntity
+        private void OnTreeEntered()
         {
-            if (entities.ContainsKey(entityId))
-                return (T)entities[entityId];
-            return null;
-        }
-
-        public IEnumerable<IEntity> GetEntities()
-        {
-            return entities.Values.AsEnumerable();
-        }
-
-        public bool HasEntity(ulong entityId)
-        {
-            return GetEntity<IEntity>(entityId) != null;
+            // Reset
+            foreach (var system in systems.ToList())
+                RemoveSystem(system);
+            foreach (var entity in entities.ToList())
+                RemoveEntity(entity);
+            // Reconcile
+            NodeUtil.TraverseChildren(this, true, (child) =>
+            {
+                if (child.IsEntitySystem() && NodeUtil.GetClosestParentOfType<IEntitySystemManager>(child) == this)
+                {
+                    AddSystem((IEntitySystem)child);
+                }
+                else if (child.IsEntity() && NodeUtil.GetClosestParentOfType<IEntitySystemManager>(child) == this)
+                {
+                    AddEntity((IEntity)child);
+                }
+            });
         }
 
         public void AddEntity(IEntity entity)
         {
+            Debug.Assert(entity is Node);
+            Log.Debug($"SysMgr AddEntity: {entity}");
             entityUpdateEntries.Add(new EntityUpdateEntry(entity, EntityUpdateType.Add));
         }
 
-        public void RemoveEntity(ulong entityId)
+        public void RemoveEntity(IEntity entity)
         {
-            entityUpdateEntries.Add(new EntityUpdateEntry(entities[entityId], EntityUpdateType.Remove));
+            Debug.Assert(entity is Node);
+            Log.Debug($"SysMgr RemoveEntity: {entity}");
+            entityUpdateEntries.Add(new EntityUpdateEntry(entity, EntityUpdateType.Remove));
         }
 
         public void AddSystem(IEntitySystem system)
         {
+            Debug.Assert(system is Node);
+            Log.Debug($"SysMgr AddSystem: {system}");
             systemUpdateEntries.Add(new SystemUpdateEntry(system, false));
         }
 
         public void RemoveSystem(IEntitySystem system)
         {
+            Debug.Assert(system is Node);
+            Log.Debug($"SysMgr RemoveSystem: {system}");
             systemUpdateEntries.Add(new SystemUpdateEntry(system, true));
         }
 
@@ -115,18 +93,22 @@ namespace GdEcs
                 switch (entry.EntityUpdateType)
                 {
                     case EntityUpdateType.Add:
-                        Debug.Assert(!entities.Values.Contains(entry.Entity));
-                        entry.Entity.EntityId = NextEntityId();
-                        entities.Add(entry.Entity.EntityId, entry.Entity);
-                        entry.Entity.ComponentStore.ComponentsChanged += OnEntityComponentsChanged;
+                        Debug.Assert(!Entities.Contains(entry.Entity));
+                        entityComponentDelegates.Add(entry.Entity, () =>
+                        {
+                            entityUpdateEntries.Add(new EntityUpdateEntry(entry.Entity, EntityUpdateType.Update));
+                        });
+                        entities.Add(entry.Entity);
+                        entry.Entity.GetEntityComponentStore().ComponentsChanged +=
+                            entityComponentDelegates[entry.Entity];
                         EntityAdded(entry.Entity);
                         break;
                     case EntityUpdateType.Remove:
-                        Debug.Assert(entities.Values.Contains(entry.Entity));
-                        entry.Entity.ComponentStore.ComponentsChanged -= OnEntityComponentsChanged;
-                        entities.Remove(entry.Entity.EntityId);
-                        EntityRemoved(entry.Entity);
-                        entry.Entity.EntityId = 0;
+                        Debug.Assert(Entities.Contains(entry.Entity));
+                        entry.Entity.GetEntityComponentStore().ComponentsChanged -=
+                            entityComponentDelegates[entry.Entity];
+                        entityComponentDelegates.Remove(entry.Entity);
+                        entities.Remove(entry.Entity);
                         break;
                 }
                 foreach (var system in systems)
@@ -147,7 +129,7 @@ namespace GdEcs
                     Debug.Assert(!systems.Contains(entry.System));
                     systems.AddPrioritized(entry.System);
                     EntitySystemAdded(entry.System);
-                    foreach (var ent in entities.Values)
+                    foreach (var ent in Entities)
                         entry.System.RefreshProcessesEntity(ent);
                 }
             }
@@ -167,59 +149,35 @@ namespace GdEcs
                 system.DoPhysicsProcess(delta);
         }
 
-        private void OnEntityComponentsChanged(IEntity entity)
-        {
-            // TODO: only if not already an entry in there
-            entityUpdateEntries.Add(new EntityUpdateEntry(entity, EntityUpdateType.Update));
-        }
+    }
 
-        private void OnChildEnteredTree(Node node)
-        {
-            GD.Print($"Child entered: {node} {node.Name}");
-            if (node is IEntity)
-            {
-                var ent = (IEntity)node;
-                AddEntity(ent);
-            }
-            else if (node is IEntitySystem)
-            {
-                var sys = (IEntitySystem)node;
-                AddSystem(sys);
-            }
-        }
+    internal enum EntityUpdateType
+    {
+        Update, Add, Remove,
+    }
 
-        private void OnChildExitingTree(Node node)
-        {
-            if (node is IEntity)
-            {
-                var ent = (IEntity)node;
-                RemoveEntity(ent.EntityId);
-            }
-            else if (node is IEntitySystem)
-            {
-                var sys = (IEntitySystem)node;
-                RemoveSystem(sys);
-            }
-        }
+    internal struct EntityUpdateEntry
+    {
+        internal readonly IEntity Entity;
+        internal readonly EntityUpdateType EntityUpdateType;
 
-        private void OnEnteredTree()
+        internal EntityUpdateEntry(IEntity entity, EntityUpdateType entityUpdateType)
         {
-            Debug.Assert(NodeUtil.GetClosestParentOfType<EntitySystemManagerNode>(this) == null,
-                "EntitySystemManagerNode cannot be in the subtree of another EntitySystemManagerNode");
+            this.Entity = entity;
+            this.EntityUpdateType = entityUpdateType;
         }
+    }
 
-        private void OnExitedTree()
+    internal struct SystemUpdateEntry
+    {
+        internal readonly IEntitySystem System;
+        internal readonly bool Remove;
+
+        internal SystemUpdateEntry(IEntitySystem system, bool remove)
         {
-            Disconnect("child_entered_tree", this, nameof(OnChildEnteredTree));
-            Disconnect("child_exiting_tree", this, nameof(OnChildExitingTree));
-            Disconnect("tree_exited", this, nameof(OnExitedTree));
+            this.System = system;
+            this.Remove = remove;
         }
-
-        private ulong NextEntityId()
-        {
-            return nextEntityId++;
-        }
-
     }
 
 }

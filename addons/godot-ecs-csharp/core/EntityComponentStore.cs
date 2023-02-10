@@ -9,15 +9,10 @@ namespace GdEcs
     public class EntityComponentStore : Reference
     {
 
-        public event EntityDelegate ComponentsChanged = delegate { };
+        public event EmptyDelegate ComponentsChanged = delegate { };
 
-        public IEntity Entity { get; private set; }
-        private Dictionary<Type, List<IEntityComponent>> componentTypeMap = new Dictionary<Type, List<IEntityComponent>>();
-
-        public EntityComponentStore(IEntity entity)
-        {
-            this.Entity = entity;
-        }
+        private Dictionary<Type, List<IEntityComponent>> componentTypeMap =
+            new Dictionary<Type, List<IEntityComponent>>();
 
         public bool HasComponentsOfType<T>(uint atLeast = 1) where T : IEntityComponent
         {
@@ -60,7 +55,7 @@ namespace GdEcs
             }
             Debug.Assert(!componentTypeMap[type].Contains(component));
             componentTypeMap[type].Add(component);
-            ComponentsChanged(Entity);
+            ComponentsChanged();
         }
 
         public void RemoveComponentFromStore(IEntityComponent component)
@@ -71,7 +66,7 @@ namespace GdEcs
             componentTypeMap[type].Remove(component);
             if (componentTypeMap[type].Count <= 0)
                 componentTypeMap.Remove(type);
-            ComponentsChanged(Entity);
+            ComponentsChanged();
         }
 
     }
