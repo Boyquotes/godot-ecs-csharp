@@ -38,6 +38,7 @@ script = ExtResource( 5 )
 EntitySystemPriority = 10
 
 [node name="Entities" type="Node" parent="EntitySystemManagerNode"]
+unique_name_in_owner = true
 
 [node name="PlayerEntity" type="KinematicBody2D" parent="EntitySystemManagerNode/Entities"]
 unique_name_in_owner = true

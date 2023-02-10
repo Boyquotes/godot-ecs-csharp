@@ -21,6 +21,20 @@ public class Example1 : Node
                 dude.AddComponent(new FourDirectionalUserInputComponent());
             }
         }
+
+        if (Input.IsActionJustPressed("ui_cancel"))
+        {
+            var player = GetNode<EntityKinematicBody2D>("%PlayerEntity");
+            var dude = GetNode<EntityKinematicBody2D>("%DudeEntity");
+            var entities = GetNode<Node>("%Entities");
+
+            var newDude = (EntityKinematicBody2D)dude.Duplicate();
+            newDude.Position = player.Position + new Vector2(75, 0);
+            // var velComp = new Velocity2DComponent();
+            // velComp.Velocity = player.ComponentStore.GetFirstComponentOfType<Velocity2DComponent>()!.Velocity;
+            // newDude.AddComponent(velComp);
+            entities.AddChild(newDude);
+        }
     }
 
 }

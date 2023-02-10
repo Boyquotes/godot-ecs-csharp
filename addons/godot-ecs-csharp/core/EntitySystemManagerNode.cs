@@ -175,6 +175,7 @@ namespace GdEcs
 
         private void OnChildEnteredTree(Node node)
         {
+            GD.Print($"Child entered: {node} {node.Name}");
             if (node is IEntity)
             {
                 var ent = (IEntity)node;
