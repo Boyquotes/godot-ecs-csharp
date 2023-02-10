@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using Godot;
 
 namespace GdEcs
@@ -62,10 +63,12 @@ namespace GdEcs
                 switch (entry.EntityUpdateType)
                 {
                     case EntityUpdateType.Add:
+                        Debug.Assert(!entities.Contains(entry.Entity));
                         entities.Add(entry.Entity);
                         entry.Entity.ComponentStore.ComponentsChanged += OnEntityComponentsChanged;
                         break;
                     case EntityUpdateType.Remove:
+                        Debug.Assert(entities.Contains(entry.Entity));
                         entry.Entity.ComponentStore.ComponentsChanged -= OnEntityComponentsChanged;
                         entities.Remove(entry.Entity);
                         break;
@@ -79,10 +82,12 @@ namespace GdEcs
             {
                 if (entry.Remove)
                 {
+                    Debug.Assert(systems.Contains(entry.System));
                     systems.Remove(entry.System);
                 }
                 else
                 {
+                    Debug.Assert(!systems.Contains(entry.System));
                     systems.Add(entry.System);
                     foreach (var ent in entities)
                         entry.System.RefreshProcessesEntity(ent);

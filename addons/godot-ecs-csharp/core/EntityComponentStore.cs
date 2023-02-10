@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Godot;
 
@@ -49,6 +50,7 @@ namespace GdEcs
             {
                 componentTypeMap.Add(type, new List<IEntityComponent>());
             }
+            Debug.Assert(!componentTypeMap[type].Contains(component));
             componentTypeMap[type].Add(component);
             ComponentsChanged(Entity);
         }
