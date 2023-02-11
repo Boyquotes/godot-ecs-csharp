@@ -81,6 +81,21 @@ namespace GdEcs
             return GetClosestParentOfType<T>((Node)parent);
         }
 
+        public static StringKeyComponent? GetStringKeyComponentMatching(this EntityComponentStore ecs, string key)
+        {
+            foreach (var comp in ecs.GetComponentsOfType<StringKeyComponent>())
+            {
+                if (comp.Key == key)
+                    return comp;
+            }
+            return null;
+        }
+
+        public static bool HasStringKeyComponentMatching(this EntityComponentStore ecs, string key)
+        {
+            return ecs.GetStringKeyComponentMatching(key) != null;
+        }
+
     }
 
 }
