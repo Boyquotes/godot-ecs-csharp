@@ -8,7 +8,7 @@ namespace GdEcs
     {
 
         [Export]
-        public float Speed { get; set; } = 10000;
+        public float Speed { get; set; } = 1000;
 
     }
 
