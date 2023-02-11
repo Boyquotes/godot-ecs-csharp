@@ -68,7 +68,7 @@ namespace GdEcs
                 dir -= transform.basis.x;
             else if (Input.IsActionPressed(RightActionName))
                 dir += transform.basis.x;
-            return dir;
+            return dir.Normalized();
         }
 
         public override void _UnhandledInput(InputEvent e)
