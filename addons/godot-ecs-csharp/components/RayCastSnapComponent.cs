@@ -4,7 +4,7 @@ namespace GdEcs
 {
 
     [Tool]
-    [ExportCustomNode("component")]
+    [ExportCustomNode("component", "RayCast")]
     public class RayCastSnapComponent : RayCastComponent
     {
 
