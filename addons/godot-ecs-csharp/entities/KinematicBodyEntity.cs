@@ -4,6 +4,6 @@ namespace GdEcs
 {
 
     [ExportCustomNode("entity")]
-    public class EntitySpatial : Spatial, IEntity { }
+    public class KinematicBodyEntity : KinematicBody, IEntity { }
 
 }

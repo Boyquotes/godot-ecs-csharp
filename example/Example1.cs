@@ -18,7 +18,7 @@ public class Example1 : Node
 
         if (Input.IsActionJustPressed("ui_accept"))
         {
-            var dude = GetNode<EntityKinematicBody2D>("%DudeEntity");
+            var dude = GetNode<KinematicBody2DEntity>("%DudeEntity");
             if (dude.GetEntityComponentStore().HasComponentsOfType<FourDirectionalUserInputComponent>())
             {
                 dude.RemoveEntityComponent(dude.GetEntityComponentStore().GetFirstComponentOfType<FourDirectionalUserInputComponent>()!);
@@ -31,11 +31,11 @@ public class Example1 : Node
 
         if (Input.IsActionJustPressed("ui_cancel"))
         {
-            var player = GetNode<EntityKinematicBody2D>("%PlayerEntity");
-            var dude = GetNode<EntityKinematicBody2D>("%DudeEntity");
+            var player = GetNode<KinematicBody2DEntity>("%PlayerEntity");
+            var dude = GetNode<KinematicBody2DEntity>("%DudeEntity");
             var entities = GetNode<Node>("%Entities");
 
-            var newDude = (EntityKinematicBody2D)dude.Duplicate();
+            var newDude = (KinematicBody2DEntity)dude.Duplicate();
             newDude.Position = player.Position + new Vector2(75, 0);
             newDude.RemoveEntityComponentsOfType<FourDirectionalUserInputComponent>();
             entities.AddChild(newDude);

@@ -7,10 +7,6 @@ using Godot;
 public class godot_ecs_csharp : EditorPlugin
 {
 
-    private const string BASE_FOLDER = "addons/godot-ecs-csharp";
-    private const string CORE_FOLDER = "core";
-    private const string COMPONENTS_FOLDER = "components";
-
     private List<string> registeredTypes = new List<string>();
 
     public override void _EnterTree()

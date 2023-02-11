@@ -4,6 +4,6 @@ namespace GdEcs
 {
 
     [ExportCustomNode("entity")]
-    public class EntityNode : Node, IEntity { }
+    public class NodeEntity : Node, IEntity { }
 
 }
