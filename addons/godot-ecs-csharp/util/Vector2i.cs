@@ -26,6 +26,16 @@ namespace GdEcs
             return new Vector2i(x, y);
         }
 
+        public override bool Equals(object? obj) => obj is Vector2i other && this.Equals(other);
+
+        public bool Equals(Vector2i obj) => x == obj.x && y == obj.y;
+
+        public override int GetHashCode() => (x, y).GetHashCode();
+
+        public static bool operator ==(Vector2i a, Vector2i b) => a.Equals(b);
+
+        public static bool operator !=(Vector2i a, Vector2i b) => !(a == b);
+
     }
 
 }
