@@ -19,7 +19,7 @@ namespace GdEcs
             var speedComp = compStore.GetFirstComponentOfType<SpeedComponent>()!;
             var velComp = compStore.GetFirstComponentOfType<Velocity2DComponent>()!;
 
-            velComp.Velocity = dirComp.DirVecNormalized * speedComp.Speed * delta;
+            velComp.Velocity = dirComp.DirVecNormalized * speedComp.Speed;
         }
 
         protected override bool ShouldProcessEntity(IEntity entity)
