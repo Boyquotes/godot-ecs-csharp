@@ -11,6 +11,9 @@ namespace GdEcs
         public string Key { get; set; } = "";
 
         [Export]
+        public string StringArg { get; set; } = "";
+
+        [Export]
         public NodePath NodePathArg { get; set; } = new NodePath();
 
         public T? GetNodePathArgNode<T>() where T : Node
