@@ -84,10 +84,8 @@ namespace GdEcs
             systemUpdateEntries.Add(new SystemUpdateEntry(system, true));
         }
 
-        public override void _Process(float delta)
+        private void ProcessEntityUpdateEntries()
         {
-            base._Process(delta);
-
             foreach (var entry in entityUpdateEntries)
             {
                 switch (entry.EntityUpdateType)
@@ -115,6 +113,13 @@ namespace GdEcs
                     system.RefreshProcessesEntity(entry.Entity);
             }
             entityUpdateEntries.Clear();
+        }
+
+        public override void _Process(float delta)
+        {
+            base._Process(delta);
+
+            ProcessEntityUpdateEntries();
 
             foreach (var entry in systemUpdateEntries)
             {
@@ -144,6 +149,8 @@ namespace GdEcs
         public override void _PhysicsProcess(float delta)
         {
             base._PhysicsProcess(delta);
+
+            ProcessEntityUpdateEntries();
 
             foreach (var system in systems)
                 system.DoPhysicsProcess(delta);
